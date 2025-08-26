@@ -1,0 +1,17 @@
+
+
+function init(self)
+	-- Initialization code if needed
+	-- Rotation speed in radians per second
+	self.rotation_speed = 0.5 -- Adjust this value to change rotation speed
+	self.sprite_url = msg.url("/star#sprite")
+	self.current_angle = 0
+end
+
+function update(self, dt)
+	self.current_angle = self.current_angle + self.rotation_speed * dt
+	if self.current_angle >= 2 * math.pi then
+		self.current_angle = self.current_angle - 2 * math.pi
+	end
+	go.set_rotation(vmath.quat_rotation_z(self.current_angle), self.sprite_url)
+end

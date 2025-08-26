@@ -1,0 +1,60 @@
+
+function init(self)
+	-- Obtener referencias a los nodos GUI
+	self.energy_node = gui.get_node("energy_counter")
+	-- self.particle_node = gui.get_node("central_particle")
+
+	-- Inicializar texto
+	gui.set_text(self.energy_node, "0")
+	-- Uncomment this to check the actual url of the component.
+	-- local url = msg.url()
+	-- print("URL of this script: ", url)
+end
+
+local function format_energy(value)
+	-- Formatear números grandes (1K, 1M, 1B, etc.)
+	if value < 1000 then
+		return string.format("%d", value)
+	elseif value < 1000000 then
+		return string.format("%.1fK", value/1000)
+	elseif value < 1000000000 then
+		return string.format("%.1fM", value/1000000)
+	elseif value < 1000000000000 then
+		return string.format("%.1fB", value/1000000000)
+	else
+		return string.format("%.1e", value)
+	end
+end
+
+local function create_tap_effect(position, energy_per_click)
+	local node = gui.new_text_node(vmath.vector3(position.x, position.y, 0), "+" .. tostring(energy_per_click))
+	gui.set_color(node, vmath.vector4(1, 1, 0, 1)) -- Yellow text
+	gui.set_font(node, "main") -- You'll need to create a font resource
+
+	-- Animate the text to float up and fade out
+	gui.animate(node, "position.y", position.y + 100, gui.EASING_OUTSINE, 1.5)
+	gui.animate(node, "color.w", 0, gui.EASING_INSINE, 1.5, 0, function()
+		gui.delete_node(node)
+	end)
+
+	-- Optional: Add a scale pulse effect to the planet
+	-- gui.animate(self.planet_node, "scale", vmath.vector3(1.1, 1.1, 1), gui.EASING_OUTSINE, 0.1)
+	-- gui.animate(self.planet_node, "scale", vmath.vector3(1, 1, 1), gui.EASING_INSINE, 0.1, 0.1)
+end
+
+function update(self, dt)
+	-- Actualizaciones de la GUI si son necesarias
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("update_energy") then
+		-- Actualizar el contador de energía
+		local formatted = format_energy(message.energy)
+		gui.set_text(self.energy_node, formatted)
+
+	elseif message_id == hash("tap_effect") then
+		-- Crear efecto visual al hacer tap
+		create_tap_effect(message.position, message.energy_per_click)
+		print("tap")
+	end
+end

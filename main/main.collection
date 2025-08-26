@@ -1,0 +1,45 @@
+name: "main"
+scale_along_z: 0
+embedded_instances {
+  id: "game"
+  data: "components {\n"
+  "  id: \"game\"\n"
+  "  component: \"/scripts/game.script\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "ui"
+  data: "components {\n"
+  "  id: \"game\"\n"
+  "  component: \"/UI/game.gui\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "star"
+  data: "components {\n"
+  "  id: \"star\"\n"
+  "  component: \"/scripts/star.script\"\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"planet-1\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/stars/stars.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    x: 360.0
+    y: 640.0
+  }
+  scale3 {
+    x: 0.31
+    y: 0.3
+  }
+}

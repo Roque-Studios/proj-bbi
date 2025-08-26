@@ -1,0 +1,22 @@
+script: "/scripts/game.gui_script"
+fonts {
+  name: "main"
+  font: "/assets/fonts/main.font"
+}
+nodes {
+  position {
+    x: 360.0
+    y: 1150.0
+  }
+  size {
+    x: 100.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "0"
+  font: "main"
+  id: "energy_counter"
+  inherit_alpha: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

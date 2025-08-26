@@ -1,0 +1,44 @@
+function init(self)
+	-- Inicializar el juego
+	msg.post(".", "acquire_input_focus")
+	self.cosmic_energy = 0
+	self.energy_per_click = 1
+	self.energy_per_second = 0
+end
+
+function final(self)
+	-- Limpieza si es necesaria
+end
+
+function update(self, dt)
+	-- Generación pasiva de energía
+	self.cosmic_energy = self.cosmic_energy + (self.energy_per_second * dt)
+	-- Enviar actualización a la GUI
+	msg.post("/ui#game", "update_energy", { energy = self.cosmic_energy })
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash("touch") and action.pressed then
+		-- Detectar clic/tap en la partícula central
+		local planet_pos = vmath.vector3(360, 640, 0)
+		local planet_radius = 200
+		local distance = vmath.length(vmath.vector3(
+			action.x - planet_pos.x,
+			action.y - planet_pos.y,
+			0
+		))
+		if distance <= planet_radius then
+			self.cosmic_energy = self.cosmic_energy + self.energy_per_click
+
+			-- Enviar actualización a la GUI
+			msg.post("/ui#game", "update_energy", { energy = self.cosmic_energy })
+
+			-- Enviar mensaje para efecto visual
+			msg.post("/ui#game", "tap_effect", { position = action, energy_per_click = self.energy_per_click })
+
+			return true
+		end
+
+	end
+	return false
+end
