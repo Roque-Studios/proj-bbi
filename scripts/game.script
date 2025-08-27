@@ -6,19 +6,17 @@ local PASSIVE_SOURCES = {
 
 
 function init(self)
-	-- Inicializar el juego
 	msg.post(".", "acquire_input_focus")
 	self.cosmic_energy = 0
 	self.energy_per_click = 1
 	self.energy_per_second = 0
 	self.base_energy_per_second = 0
 	self.passive_multiplier = 1
+	self.click_multiplier = 1
+	self.base_passive_multiplier = 1
+	self.base_click_multiplier = 1
 	self.last_update_time = socket.gettime()
 	self.save_time = nil
-end
-
-function final(self)
-	-- Limpieza si es necesaria
 end
 
 local function calculate_passive_energy(self)
@@ -33,8 +31,35 @@ local function calculate_passive_energy(self)
 		total_eps = total_eps + (source_data.count * source_data.multiplier)
 	end
 
-	-- Apply global multiplier
-	self.energy_per_second = total_eps * self.passive_multiplier
+	-- Apply all multipliers (base passive multiplier + evolution multiplier)
+	self.energy_per_second = total_eps * self.passive_multiplier * self.base_passive_multiplier
+end
+
+local function recalculate_energy_values(self)
+	-- Recalculate energy per click with all multipliers
+	self.energy_per_click = 1 * self.base_click_multiplier * self.click_multiplier
+
+	-- Recalculate passive energy with all multipliers
+	calculate_passive_energy(self)
+end
+
+local function handle_star_evolution(self, evolution_data)
+	-- Apply the evolution multipliers
+	self.base_click_multiplier = evolution_data.click_multiplier
+	self.base_passive_multiplier = evolution_data.passive_multiplier
+
+	-- Recalculate energy values
+	recalculate_energy_values(self)
+
+	-- Show evolution message to player
+	msg.post("/ui#game", "show_message", {
+		text = "Evolved to " .. evolution_data.stage_name .. 
+		"! " .. evolution_data.click_multiplier .. "x click energy, " ..
+		evolution_data.passive_multiplier .. "x passive energy!"
+	})
+
+	print("Star evolved to stage " .. evolution_data.stage .. 
+	": " .. evolution_data.stage_name)
 end
 
 function update(self, dt)
@@ -48,7 +73,9 @@ function update(self, dt)
 	-- Enviar actualización a la GUI
 	msg.post("/ui#game", "update_energy", { 
 		energy = self.cosmic_energy,
-		passive_eps = self.energy_per_second 
+		passive_eps = self.energy_per_second,
+		click_multiplier = self.base_click_multiplier * self.click_multiplier,
+		passive_multiplier = self.base_passive_multiplier * self.passive_multiplier
 	})
 
 	msg.post("/star#star", "energy_updated", {
@@ -78,6 +105,12 @@ local function set_global_multiplier(self, multiplier)
 	calculate_passive_energy(self)
 end
 
+function on_message(self, message_id, message)
+	if message_id == hash("star_evolved") then
+		handle_star_evolution(self, message)
+	end
+end
+
 function on_input(self, action_id, action)
 	if action_id == hash("touch") and action.pressed then
 		-- Detectar clic/tap en la partícula central
@@ -102,7 +135,7 @@ function on_input(self, action_id, action)
 
 			return true
 		end
-
 	end
+	
 	return false
 end

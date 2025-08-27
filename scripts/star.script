@@ -19,25 +19,33 @@ function init(self)
 			threshold = 0, -- Initial stage
 			image = "planet-1",
 			rotation_speed = 0.5,
-			scale = vmath.vector3(1, 1, 1)
+			scale = vmath.vector3(1, 1, 1),
+			click_multiplier = 1.0,
+			passive_multiplier = 1.0,
 		},
 		{
 			threshold = 15, -- Become a star
 			image = "planet-2",
 			rotation_speed = 0.8,
-			scale = vmath.vector3(0.31, 0.31, 1)
+			scale = vmath.vector3(0.31, 0.31, 1),
+			click_multiplier = 2.0,
+			passive_multiplier = 1.5,
 		},
 		{
 			threshold = 30, -- Become a solar system
 			image = "planet-3",
 			rotation_speed = 0.3,
-			scale = vmath.vector3(0.35, 0.35, 1)
+			scale = vmath.vector3(0.35, 0.35, 1),
+			click_multiplier = 3.0,
+			passive_multiplier = 2.0,
 		},
 		{
 			threshold = 45, -- Become a galaxy
 			image = "planet-4",
 			rotation_speed = 0.2,
-			scale = vmath.vector3(0.37, 0.37, 1)
+			scale = vmath.vector3(0.37, 0.37, 1),
+			click_multiplier = 4.0,
+			passive_multiplier = 3.0,
 		}
 		-- Add more stages as needed
 	}
@@ -78,10 +86,12 @@ local function evolve_to_stage(self, stage_index)
 	play_evolution_effect(self)
 
 	-- Notify other game systems about the evolution
--- 	msg.post("/game#game_object", "star_evolved", {
--- 		stage = stage_index,
--- 		stage_name = stage.image
--- 	})
+	msg.post("/game#game", "star_evolved", {
+		stage = stage_index,
+		stage_name = stage.image,
+		click_multiplier = stage.click_multiplier,
+		passive_multiplier = stage.passive_multiplier
+	})
 -- 
 	print("Evolved to stage: " .. stage.image)
 end

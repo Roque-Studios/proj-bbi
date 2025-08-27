@@ -2,12 +2,16 @@
 function init(self)
 	-- Obtener referencias a los nodos GUI
 	self.energy_node = gui.get_node("energy_counter")
-	self.eps_node = gui.get_node("passive_eps")	
+	self.eps_node = gui.get_node("passive_eps")
+	self.click_mult_node = gui.get_node("click_multiplier")
+	self.passive_mult_node = gui.get_node("passive_multiplier")
 	-- self.particle_node = gui.get_node("central_particle")
 
 	-- Inicializar texto
 	gui.set_text(self.energy_node, "0")
 	gui.set_text(self.eps_node, "0/s")
+	gui.set_text(self.click_mult_node, "Click: 1.0x")
+	gui.set_text(self.passive_mult_node, "Passive: 1.0x")
 	-- Uncomment this to check the actual url of the component.
 	-- local url = msg.url()
 	-- print("URL of this script: ", url)
@@ -48,6 +52,21 @@ function update(self, dt)
 	-- Actualizaciones de la GUI si son necesarias
 end
 
+local function show_temporary_message(self, text)
+	-- Create a temporary message node
+	local message_node = gui.new_text_node(vmath.vector3(360, 250, 0), text)
+	gui.set_color(message_node, vmath.vector4(1, 1, 1, 1))
+	gui.set_font(message_node, "main") -- Use your game font
+
+	-- Animate the message to fade in and out
+	gui.set_scale(message_node, vmath.vector3(0.5, 0.5, 1))
+	gui.animate(message_node, "scale", vmath.vector3(0.5, 0.5, 1), gui.EASING_OUTELASTIC, 0.5)
+
+	gui.animate(message_node, "color.w", 0, gui.EASING_LINEAR, 3, 2, function()
+		gui.delete_node(message_node)
+	end)
+end
+
 function on_message(self, message_id, message, sender)
 	if message_id == hash("update_energy") then
 		-- Actualizar el contador de energía
@@ -57,9 +76,19 @@ function on_message(self, message_id, message, sender)
 		local formatted_eps = format_energy(message.passive_eps) .. "/s"
 		gui.set_text(self.eps_node, formatted_eps)
 
+		-- Update multiplier displays if provided
+		if message.click_multiplier then
+			gui.set_text(self.click_mult_node, "Click: " .. message.click_multiplier .. "x")
+		end
+
+		if message.passive_multiplier then
+			gui.set_text(self.passive_mult_node, "Passive: " .. message.passive_multiplier .. "x")
+		end
+
 	elseif message_id == hash("tap_effect") then
 		-- Crear efecto visual al hacer tap
 		create_tap_effect(message.position, message.energy_per_click)
-		print("tap")
+	elseif message_id == hash("show_message") then
+		show_temporary_message(self, message.text)
 	end
 end
