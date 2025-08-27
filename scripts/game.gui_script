@@ -2,10 +2,12 @@
 function init(self)
 	-- Obtener referencias a los nodos GUI
 	self.energy_node = gui.get_node("energy_counter")
+	self.eps_node = gui.get_node("passive_eps")	
 	-- self.particle_node = gui.get_node("central_particle")
 
 	-- Inicializar texto
 	gui.set_text(self.energy_node, "0")
+	gui.set_text(self.eps_node, "0/s")
 	-- Uncomment this to check the actual url of the component.
 	-- local url = msg.url()
 	-- print("URL of this script: ", url)
@@ -51,6 +53,9 @@ function on_message(self, message_id, message, sender)
 		-- Actualizar el contador de energía
 		local formatted = format_energy(message.energy)
 		gui.set_text(self.energy_node, formatted)
+
+		local formatted_eps = format_energy(message.passive_eps) .. "/s"
+		gui.set_text(self.eps_node, formatted_eps)
 
 	elseif message_id == hash("tap_effect") then
 		-- Crear efecto visual al hacer tap

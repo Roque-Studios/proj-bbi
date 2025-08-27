@@ -1,4 +1,8 @@
 
+local function set_sprite(self, image_name)
+	sprite.play_flipbook(self.sprite_url, image_name)
+end	
+
 
 function init(self)
 	-- Initialization code if needed
@@ -6,6 +10,93 @@ function init(self)
 	self.rotation_speed = 0.5 -- Adjust this value to change rotation speed
 	self.sprite_url = msg.url("/star#sprite")
 	self.current_angle = 0
+	self.current_stage = 1
+	self.current_energy = 0
+
+	-- Evolution settings
+	self.evolution_stages = {
+		{
+			threshold = 0, -- Initial stage
+			image = "planet-1",
+			rotation_speed = 0.5,
+			scale = vmath.vector3(1, 1, 1)
+		},
+		{
+			threshold = 15, -- Become a star
+			image = "planet-2",
+			rotation_speed = 0.8,
+			scale = vmath.vector3(0.31, 0.31, 1)
+		},
+		{
+			threshold = 30, -- Become a solar system
+			image = "planet-3",
+			rotation_speed = 0.3,
+			scale = vmath.vector3(0.35, 0.35, 1)
+		},
+		{
+			threshold = 45, -- Become a galaxy
+			image = "planet-4",
+			rotation_speed = 0.2,
+			scale = vmath.vector3(0.37, 0.37, 1)
+		}
+		-- Add more stages as needed
+	}
+
+	set_sprite(self, self.evolution_stages[self.current_stage].image)
+end
+
+local function play_evolution_effect(self)
+	-- Create a visual effect for evolution
+	-- You can add particle effects, animations, etc.
+	go.animate(".", "scale", go.PLAYBACK_ONCE_FORWARD, 
+	vmath.vector3(0.4, 0.4, 1), go.EASING_OUTELASTIC, 0.5)
+
+	go.animate(".", "scale", go.PLAYBACK_ONCE_FORWARD, 
+	self.evolution_stages[self.current_stage].scale, 
+	go.EASING_INOUTSINE, 0.5, 0.5)
+end
+
+local function evolve_to_stage(self, stage_index)
+	if stage_index > #self.evolution_stages or stage_index <= self.current_stage then
+		return -- Invalid stage or already at this stage
+	end
+
+	-- Update current stage
+	self.current_stage = stage_index
+	local stage = self.evolution_stages[stage_index]
+
+	-- Change sprite
+	set_sprite(self, stage.image)
+
+	-- Update rotation speed
+	self.rotation_speed = stage.rotation_speed
+
+	-- Apply scale
+	go.set_scale(stage.scale)
+
+	-- Play evolution effect
+	play_evolution_effect(self)
+
+	-- Notify other game systems about the evolution
+-- 	msg.post("/game#game_object", "star_evolved", {
+-- 		stage = stage_index,
+-- 		stage_name = stage.image
+-- 	})
+-- 
+	print("Evolved to stage: " .. stage.image)
+end
+
+local function check_evolution(self)
+	-- Check if we should evolve to the next stage
+	local next_stage = self.current_stage + 1
+
+	if next_stage <= #self.evolution_stages then
+		local next_threshold = self.evolution_stages[next_stage].threshold
+
+		if self.current_energy >= next_threshold then
+			evolve_to_stage(self, next_stage)
+		end
+	end
 end
 
 function update(self, dt)
@@ -14,4 +105,14 @@ function update(self, dt)
 		self.current_angle = self.current_angle - 2 * math.pi
 	end
 	go.set_rotation(vmath.quat_rotation_z(self.current_angle), self.sprite_url)
+
+	check_evolution(self)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("energy_updated") then
+		-- Update current energy and check for evolution
+		self.current_energy = message.energy
+		check_evolution(self)
+	end
 end

@@ -18,5 +18,29 @@ nodes {
   id: "energy_counter"
   inherit_alpha: true
 }
+nodes {
+  position {
+    x: 361.0
+    y: 1070.0
+  }
+  scale {
+    x: 0.624445
+    y: 0.616178
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  color {
+    x: 0.702
+    y: 0.702
+    z: 0.702
+  }
+  type: TYPE_TEXT
+  text: "0/s"
+  font: "main"
+  id: "passive_eps"
+  inherit_alpha: true
+}
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT

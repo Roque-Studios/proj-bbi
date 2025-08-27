@@ -1,4 +1,28 @@
 images {
   image: "/assets/images/planet-1.png"
 }
+images {
+  image: "/assets/images/planet-2.png"
+}
+images {
+  image: "/assets/images/planet-3.png"
+}
+images {
+  image: "/assets/images/planet-4.png"
+}
+images {
+  image: "/assets/images/planet-5.png"
+}
+images {
+  image: "/assets/images/planet-6.png"
+}
+images {
+  image: "/assets/images/planet-7.png"
+}
+images {
+  image: "/assets/images/planet-8.png"
+}
+images {
+  image: "/assets/images/planet-9.png"
+}
 extrude_borders: 2
