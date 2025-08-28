@@ -11,12 +11,14 @@ high_dpi = 1
 
 [android]
 input_method = HiddenInputField
+package = com.roquestudios.bbi
 
 [html5]
 scale_mode = stretch
 
 [project]
 title = proj-bbi
+dependencies = 
 
 [physics]
 gravity_y = 0.0
